@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Music Chart</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <div id="stage-overlay"></div> <div class="header">
+        <h1 id="main-title">Дружеское голосование(15 или 25)</h1>
+        <p id="instruction">Нажмите на полосу страны для ввода баллов</p>
+    </div>
+
+    <div id="chart-container">
+        </div>
+
+    <div id="input-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3 id="modal-country-name">Страна</h3>
+            <input type="number" id="score-input">
+            <div class="modal-buttons">
+                <button onclick="closeModal()">Отмена</button>
+                <button class="confirm-btn" onclick="submitVote()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="final-modal" class="modal" style="display: none;">
+        <div class="modal-content winner-box">
+            <h2>🏆 ПОБЕДИТЕЛЬ 🏆</h2>
+            <div id="podium"></div>
+            <button class="reset-btn" onclick="location.reload()">ПОВТОРИТЬ</button>
+        </div>
+    </div>
+<div id="vote-details" class="footer-text">сайт сделанный от супер крутого артема для андрея</div>
+    <script src="script.js"></script>
+</body>
+</html>
