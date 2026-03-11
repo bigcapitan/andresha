@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Созвездие Мелодий</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</head>
+<body class="stage-friendly">
+
+    <div id="start-screen">
+        <button id="start-btn">НАЧАТЬ ГОЛОСОВАНИЕ</button>
+    </div>
+
+    <div id="stage-overlay"></div>
+
+    <div class="header" id="main-header" style="display: none;">
+        <h1 id="main-title">Дружеское голосование</h1>
+        <div id="turn-indicator" class="sub-text"></div>
+    </div>
+
+    <div id="chart-container" style="display: none;"></div>
+
+    <div id="input-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2 id="modal-who-votes" style="color: #ff6600; font-size: 0.9rem;"></h2>
+            <h3 id="modal-country-name">Страна</h3>
+            <input type="number" id="score-input">
+            <div class="modal-buttons">
+                <button onclick="closeModal()">Отмена</button>
+                <button class="confirm-btn" onclick="submitVote()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="final-modal" class="modal" style="display: none;">
+        <div class="modal-content winner-box">
+            <h2>🏆 ИТОГИ 🏆</h2>
+            <div id="podium"></div>
+            <button class="reset-btn" onclick="location.reload()">ПОВТОРИТЬ</button>
+        </div>
+    </div>
+
+    <div id="vote-details" class="footer-text"></div>
+
+
+
+    <div class="footer-logo-container">
+    <img src="./img/ChatGPT_Image_11_мар._2026_г.__21_45_09-removebg-preview.png" alt="Созвездие Мелодий" class="footer-logo">
+</div>
+    <script src="script.js"></script>
+</body>
+</html>
