@@ -1,19 +1,16 @@
-// 1. Данные стран
+// 1. Список стран
 let countries = [
     { id: 'cyprus', name: "Кипр", points: 0, flag: "https://flagcdn.com/w80/cy.png", vJury: false },
     { id: 'croatia', name: "Хорватия", points: 0, flag: "https://flagcdn.com/w80/hr.png", vJury: false },
     { id: 'venezuela', name: "Венесуэла", points: 0, flag: "https://flagcdn.com/w80/ve.png", vJury: false }
 ];
 
-// 2. Очередь: за каждую страну голосуют ДВЕ другие
+// 2. Очередь (по 2 голоса за каждую страну)
 const friendlyQueue = [
-    // Голосуют ЗА Кипр
     { from: "Хорватия", to: "Кипр" },
     { from: "Венесуэла", to: "Кипр" },
-    // Голосуют ЗА Хорватию
     { from: "Кипр", to: "Хорватия" },
     { from: "Венесуэла", to: "Хорватия" },
-    // Голосуют ЗА Венесуэлу
     { from: "Кипр", to: "Венесуэла" },
     { from: "Хорватия", to: "Венесуэла" }
 ];
@@ -22,12 +19,19 @@ let currentQueueIndex = 0;
 let currentStage = 'START'; 
 let selectedCountryId = null;
 
+// Элементы интерфейса
 const startBtn = document.getElementById('start-btn');
 const startScreen = document.getElementById('start-screen');
 const scoreInput = document.getElementById('score-input');
 const inputModal = document.getElementById('input-modal');
 
-document.body.classList.add('stage-friendly');
+// Эффект следования света за мышкой на фоне
+document.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth) * 100;
+    const y = (e.clientY / window.innerHeight) * 100;
+    document.body.style.setProperty('--x', x + '%');
+    document.body.style.setProperty('--y', y + '%');
+});
 function render() {
     const container = document.getElementById('chart-container');
     const sorted = [...countries].sort((a, b) => b.points - a.points);
@@ -38,7 +42,7 @@ function render() {
     let targetCountryId = "";
     if (currentStage === 'FRIENDLY' && currentQueueIndex < friendlyQueue.length) {
         const targetName = friendlyQueue[currentQueueIndex].to;
-        targetCountryId = countries.find(c => c.id === countries.find(k => k.name === targetName).id).id;
+        targetCountryId = countries.find(c => c.name === targetName).id;
         document.getElementById('turn-indicator').innerText = `ОЧЕРЕДЬ: ${friendlyQueue[currentQueueIndex].from} голосует за ${friendlyQueue[currentQueueIndex].to}`;
     }
 
@@ -47,6 +51,7 @@ function render() {
         const line = document.createElement('div');
         line.className = 'country-line';
         
+        // Логика активности полосок
         if (currentStage === 'FRIENDLY') {
             if (c.id === targetCountryId) {
                 line.classList.add('active-turn');
@@ -73,14 +78,15 @@ function render() {
 function openVoteModal(id) {
     const country = countries.find(c => c.id === id);
     selectedCountryId = id;
+    
+    // Прячем логотип внизу, чтобы не мешал
+    document.body.classList.add('modal-open');
 
     if (currentStage === 'FRIENDLY') {
         const voteInfo = friendlyQueue[currentQueueIndex];
-        document.getElementById('modal-who-votes').innerText = `СЕЙЧАС ГОЛОСУЕТ: ${voteInfo.from}`;
-        document.getElementById('vote-details').innerText = `ИСТОЧНИК: ${voteInfo.from} > ЦЕЛЬ: ${country.name}`;
+        document.getElementById('modal-who-votes').innerText = `ГОЛОС ОТ: ${voteInfo.from.toUpperCase()}`;
     } else {
         document.getElementById('modal-who-votes').innerText = `ГОЛОС ОТ ЖЮРИ`;
-        document.getElementById('vote-details').innerText = `JURY PANEL > TARGET: ${country.name}`;
     }
 
     document.getElementById('modal-country-name').innerText = country.name;
@@ -98,7 +104,7 @@ function submitVote() {
             country.points += val;
             currentQueueIndex++;
             finishVote();
-        } else { alert("Введите 15 или 25!"); }
+        } else { alert("Введите 15 или 25 баллов!"); }
     } else if (currentStage === 'JURY') {
         if (!isNaN(val) && val >= 0 && val <= 528) {
             country.points += val;
@@ -109,10 +115,14 @@ function submitVote() {
 }
 
 function finishVote() {
-    inputModal.style.display = 'none';
-    document.getElementById('vote-details').innerText = '';
+    closeModal();
     render();
     checkProgress();
+}
+
+function closeModal() {
+    inputModal.style.display = 'none';
+    document.body.classList.remove('modal-open');
 }
 
 scoreInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') submitVote(); });
@@ -129,33 +139,25 @@ function triggerStageSwitch() {
     overlay.classList.add('flash-animation');
     setTimeout(() => {
         currentStage = 'JURY';
-        document.body.classList.replace('stage-friendly', 'stage-jury');
         document.getElementById('main-title').innerText = "Голосование Жюри";
         render();
     }, 400);
     setTimeout(() => overlay.classList.remove('flash-animation'), 800);
 }
 
-function openVoteModal(id) {
-    // ... твой старый код ...
-    document.body.classList.add('modal-open'); // Добавляем класс
-    document.getElementById('input-modal').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('input-modal').style.display = 'none';
-    document.body.classList.remove('modal-open'); // Убираем класс
-}
-
 function showFinal() {
-    confetti({ particleCount: 250, spread: 100, origin: { y: 0.6 }, colors: ['#ff6600', '#ffffff'] });
+    // Взрыв конфетти
+    confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 }, colors: ['#ff6600', '#ffffff', '#ffec00'] });
+
     const modal = document.getElementById('final-modal');
     const podium = document.getElementById('podium');
     countries.sort((a, b) => b.points - a.points);
+
     podium.innerHTML = countries.map((c, i) => `
-    <div class="result-item" style="${i === 0 ? 'font-size: 2rem; color: #ff6600;' : ''}">
-        <span>${i + 1} МЕСТО:</span> <b>${c.name}</b> — ${c.points} б.
-    </div>`).join('');
+        <div class="result-item" style="${i === 0 ? 'font-size: 1.8rem; background: #fff8e1; border: 2px solid #000;' : ''}">
+            <b>${i + 1} МЕСТО:</b> ${c.name} — ${c.points} б.
+        </div>`).join('');
+    
     modal.style.display = 'flex';
 }
 
@@ -170,6 +172,5 @@ startBtn.onclick = () => {
     }, 1000);
 };
 
-function closeModal() { inputModal.style.display = 'none'; document.getElementById('vote-details').innerText = ''; }
-
+// Первый запуск для инициализации
 render();
